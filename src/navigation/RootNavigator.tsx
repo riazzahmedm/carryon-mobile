@@ -1,14 +1,18 @@
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import HomeScreen from "../screens/home/HomeScreen";
-import ProfileScreen from "../screens/profile/ProfileScreen";
-
-const Tab = createBottomTabNavigator();
+import { ActivityIndicator, View } from "react-native";
+import { useAuth } from "../auth/AuthContext";
+import AuthNavigator from "./AuthNavigator";
+import AppNavigator from "./AppNavigator";
 
 export default function RootNavigator() {
-  return (
-    <Tab.Navigator>
-      <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
-    </Tab.Navigator>
-  );
+  const { token, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <View className="flex-1 justify-center items-center">
+        <ActivityIndicator />
+      </View>
+    );
+  }
+
+  return token ? <AppNavigator /> : <AuthNavigator />;
 }
