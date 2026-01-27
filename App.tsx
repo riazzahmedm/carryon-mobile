@@ -5,6 +5,7 @@ import RootNavigator from "./src/navigation/RootNavigator";
 import { AuthProvider } from "./src/auth/AuthContext";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { StatusBar } from "react-native";
+import Toast from "react-native-toast-message";
 
 export default function App() {
   return (
@@ -17,6 +18,7 @@ export default function App() {
           </NavigationContainer>
         </AuthProvider>
       </QueryClientProvider>
+       <Toast />
     </SafeAreaProvider>
   );
 }
