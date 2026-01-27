@@ -1,21 +1,26 @@
 import { useState } from "react";
-import { Text, StyleSheet } from "react-native";
+import { Text, StyleSheet, ScrollView } from "react-native";
 import { Screen } from "../../components/Screen";
 import { Input } from "../../components/Input";
 import { Button } from "../../components/Button";
 import { createDelivery } from "../../api/deliveries";
 import { colors, spacing, typography } from "../../theme";
+import { Select } from "../../components/Select";
+import { useDeliveryCategories } from "../../hooks/useDeliveryCategories";
 
 export default function CreateDeliveryScreen({ navigation }: any) {
   const [itemName, setItemName] = useState("");
-  const [itemCategory, setItemCategory] = useState("");
+  const [category, setCategory] = useState("");
   const [weightKg, setWeightKg] = useState("");
   const [declaredValue, setDeclaredValue] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const { data: categories = [], isLoading: categoriesLoading } =
+    useDeliveryCategories();
+
   const submit = async () => {
-    if (!itemName || !itemCategory || !weightKg || !declaredValue) {
+    if (!itemName || !category || !weightKg || !declaredValue) {
       setError("All fields are required");
       return;
     }
@@ -31,7 +36,7 @@ export default function CreateDeliveryScreen({ navigation }: any) {
 
       const delivery = await createDelivery({
         itemName: itemName.trim(),
-        itemCategory: itemCategory.trim(),
+        itemCategory: category,
         weightKg: Number(weightKg),
         declaredValue: Number(declaredValue),
       });
@@ -52,6 +57,7 @@ export default function CreateDeliveryScreen({ navigation }: any) {
 
       {error ? <Text style={styles.error}>{error}</Text> : null}
 
+<ScrollView>
       <Text style={styles.label}>Item name</Text>
       <Input
         value={itemName}
@@ -60,11 +66,18 @@ export default function CreateDeliveryScreen({ navigation }: any) {
       />
 
       <Text style={styles.label}>Category</Text>
-      <Input
-        value={itemCategory}
-        onChangeText={setItemCategory}
-        placeholder="Documents / Electronics"
-      />
+      {categoriesLoading ? (
+        <Text>Loading categories...</Text>
+      ) : (
+        <Select
+          value={category}
+          onChange={setCategory}
+          options={categories.map((c) => ({
+            label: c.label,
+            value: c.id,
+          }))}
+        />
+      )}
 
       <Text style={styles.label}>Weight (kg)</Text>
       <Input
@@ -87,6 +100,7 @@ export default function CreateDeliveryScreen({ navigation }: any) {
         onPress={submit}
         loading={loading}
       />
+      </ScrollView>
     </Screen>
   );
 }
