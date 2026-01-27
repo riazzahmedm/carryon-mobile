@@ -1,8 +1,12 @@
 import { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator } from "react-native";
+import { Text, StyleSheet } from "react-native";
 import { requestOtp } from "../api/auth";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { showError, showSuccess } from "../utils/toast";
+
+import { Screen } from "../components/Screen";
+import { Input } from "../components/Input";
+import { Button } from "../components/Button";
+import { colors, spacing, typography } from "../theme";
 
 export default function PhoneScreen({ navigation }: any) {
   const [phone, setPhone] = useState("");
@@ -13,7 +17,8 @@ export default function PhoneScreen({ navigation }: any) {
       showError("Enter a valid 10-digit phone number");
       return;
     }
-     try {
+
+    try {
       setLoading(true);
       await requestOtp(phone);
       showSuccess("OTP sent successfully");
@@ -26,24 +31,31 @@ export default function PhoneScreen({ navigation }: any) {
   };
 
   return (
-    <SafeAreaView edges={["top"]} className="flex-1 justify-center p-6">
-      <Text className="text-2xl font-bold mb-4">Enter your phone</Text>
+    <Screen>
+      <Text style={styles.title}>Enter your phone</Text>
 
-      <TextInput
-        className="border rounded p-3 mb-4"
-        keyboardType="phone-pad"
-        placeholder="9999999999"
+      <Input
         value={phone}
         onChangeText={setPhone}
+        placeholder="9999999999"
+        keyboardType="phone-pad"
+        maxLength={10}
       />
 
-      <TouchableOpacity onPress={submit} className="bg-black p-4 rounded">
-        {loading ? (
-          <ActivityIndicator color="white" />
-        ) : (
-        <Text className="text-white text-center font-bold">Continue</Text>
-        )}
-      </TouchableOpacity>
-    </SafeAreaView>
+      <Button
+        title="Continue"
+        onPress={submit}
+        loading={loading}
+        disabled={loading}
+      />
+    </Screen>
   );
 }
+
+const styles = StyleSheet.create({
+  title: {
+    ...typography.title,
+    color: colors.textPrimary,
+    marginBottom: spacing.lg,
+  },
+});

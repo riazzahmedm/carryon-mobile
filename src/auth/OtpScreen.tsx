@@ -1,22 +1,26 @@
 import { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator } from "react-native";
+import { Text, StyleSheet } from "react-native";
 import { verifyOtp } from "../api/auth";
 import { useAuth } from "./AuthContext";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { showError, showSuccess } from "../utils/toast";
+
+import { Screen } from "../components/Screen";
+import { Input } from "../components/Input";
+import { Button } from "../components/Button";
+import { colors, spacing, typography } from "../theme";
 
 export default function OtpScreen({ route }: any) {
   const { phone } = route.params;
   const [otp, setOtp] = useState("");
-   const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const { signIn } = useAuth();
 
   const submit = async () => {
-     if (otp.length !== 6) {
+    if (otp.length !== 6) {
       showError("Enter valid 6-digit OTP");
       return;
     }
-    
+
     try {
       setLoading(true);
       const res = await verifyOtp(phone, otp);
@@ -30,24 +34,35 @@ export default function OtpScreen({ route }: any) {
   };
 
   return (
-    <SafeAreaView className="flex-1 justify-center p-6">
-      <Text className="text-xl font-bold mb-2">Verify OTP</Text>
-      <Text className="mb-4">Sent to {phone}</Text>
+    <Screen>
+      <Text style={styles.title}>Verify OTP</Text>
+      <Text style={styles.subtitle}>Sent to {phone}</Text>
 
-      <TextInput
-        className="border rounded p-3 mb-4 text-center text-lg"
-        keyboardType="number-pad"
+      <Input
         value={otp}
         onChangeText={setOtp}
+        keyboardType="number-pad"
+        maxLength={6}
       />
 
-      <TouchableOpacity onPress={submit} className="bg-black p-4 rounded">
-        {loading ? (
-          <ActivityIndicator color="white" />
-        ) : (
-        <Text className="text-white text-center font-bold">Verify</Text>
-        )}
-      </TouchableOpacity>
-    </SafeAreaView>
+      <Button
+        title="Verify"
+        onPress={submit}
+        loading={loading}
+        disabled={loading}
+      />
+    </Screen>
   );
 }
+
+const styles = StyleSheet.create({
+  title: {
+    ...typography.title,
+    color: colors.textPrimary,
+    marginBottom: spacing.sm,
+  },
+  subtitle: {
+    ...typography.caption,
+    marginBottom: spacing.lg,
+  },
+});

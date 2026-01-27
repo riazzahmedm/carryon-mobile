@@ -1,18 +1,27 @@
-import { ActivityIndicator, View } from "react-native";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { useAuth } from "../auth/AuthContext";
 import AuthNavigator from "./AuthNavigator";
-import AppNavigator from "./AppNavigator";
+import AppTabs from "./AppTabs";
+import { colors } from "../theme";
 
 export default function RootNavigator() {
   const { token, loading } = useAuth();
 
   if (loading) {
     return (
-      <View className="flex-1 justify-center items-center">
-        <ActivityIndicator />
+      <View style={styles.loader}>
+        <ActivityIndicator color={colors.primary} />
       </View>
     );
   }
 
-  return token ? <AppNavigator /> : <AuthNavigator />;
+  return token ? <AppTabs /> : <AuthNavigator />;
 }
+
+const styles = StyleSheet.create({
+  loader: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+});
