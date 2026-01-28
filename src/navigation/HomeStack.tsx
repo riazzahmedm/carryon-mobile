@@ -2,6 +2,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import HomeScreen from "../screens/home/HomeScreen";
 import CreateDeliveryScreen from "../screens/deliveries/CreateDeliveryScreen";
 import CreateTripScreen from "../screens/trips/CreateTripScreen";
+import SearchTripsScreen from "../screens/trips/SearchTripsScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -19,6 +20,12 @@ export default function HomeStack() {
         name="CreateDelivery"
         component={CreateDeliveryScreen}
         options={{ title: "Send an item" }}
+      />
+
+      <Stack.Screen
+        name="SearchTrips"
+        component={SearchTripsScreen}
+        options={{ title: "Search trips" }}
       />
 
       {/* Traveller flow */}

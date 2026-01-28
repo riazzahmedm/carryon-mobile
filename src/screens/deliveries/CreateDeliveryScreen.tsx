@@ -1,51 +1,65 @@
 import { useState } from "react";
-import { Text, StyleSheet, ScrollView } from "react-native";
+import { Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import { Screen } from "../../components/Screen";
 import { Input } from "../../components/Input";
 import { Button } from "../../components/Button";
 import { createDelivery } from "../../api/deliveries";
 import { colors, spacing, typography } from "../../theme";
-import { Select } from "../../components/Select";
 import { useDeliveryCategories } from "../../hooks/useDeliveryCategories";
+import { CategoryModal } from "../../components/CategoryModal";
+import { showError } from "../../utils/toast";
+import { useRef } from "react";
 
 export default function CreateDeliveryScreen({ navigation }: any) {
   const [itemName, setItemName] = useState("");
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState<{
+    id: string;
+    label: string;
+  } | null>(null);
   const [weightKg, setWeightKg] = useState("");
   const [declaredValue, setDeclaredValue] = useState("");
+  const [fromCity, setFromCity] = useState("");
+  const [toCity, setToCity] = useState("");
+  const [travelDate, setTravelDate] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  const { data: categories = [], isLoading: categoriesLoading } =
-    useDeliveryCategories();
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const { data: categories = [] } = useDeliveryCategories();
+  const isSubmittingRef = useRef(false);
 
   const submit = async () => {
-    if (!itemName || !category || !weightKg || !declaredValue) {
-      setError("All fields are required");
+    if (isSubmittingRef.current) return;
+    if (!itemName || !weightKg || !declaredValue || !fromCity || !toCity || !travelDate) {
+      showError("All fields are required");
+      return;
+    }
+
+    if (!category) {
+      showError("Please select a category");
       return;
     }
 
     if (Number(weightKg) <= 0) {
-      setError("Weight must be greater than 0");
+      showError("Weight must be greater than 0");
       return;
     }
 
     try {
       setLoading(true);
-      setError("");
-
       const delivery = await createDelivery({
         itemName: itemName.trim(),
-        itemCategory: category,
+        itemCategory: category.id,
         weightKg: Number(weightKg),
         declaredValue: Number(declaredValue),
       });
 
-      navigation.navigate("SearchTrips", {
-        deliveryId: delivery.id,
+      navigation.replace("SearchTrips", {
+        fromCity: fromCity.trim(),
+        toCity: toCity.trim(),
+        date: travelDate,
       });
     } catch (e) {
-      setError("Failed to create delivery");
+      isSubmittingRef.current = false;
+      showError("Failed to create delivery");
     } finally {
       setLoading(false);
     }
@@ -54,53 +68,80 @@ export default function CreateDeliveryScreen({ navigation }: any) {
   return (
     <Screen>
       <Text style={styles.title}>Send an item</Text>
-
-      {error ? <Text style={styles.error}>{error}</Text> : null}
-
-<ScrollView>
-      <Text style={styles.label}>Item name</Text>
-      <Input
-        value={itemName}
-        onChangeText={setItemName}
-        placeholder="e.g. Documents"
-      />
-
-      <Text style={styles.label}>Category</Text>
-      {categoriesLoading ? (
-        <Text>Loading categories...</Text>
-      ) : (
-        <Select
-          value={category}
-          onChange={setCategory}
-          options={categories.map((c) => ({
-            label: c.label,
-            value: c.id,
-          }))}
+      <ScrollView>
+        <Text style={styles.label}>From city</Text>
+        <Input
+          value={fromCity}
+          onChangeText={setFromCity}
+          placeholder="HYD"
         />
-      )}
 
-      <Text style={styles.label}>Weight (kg)</Text>
-      <Input
-        value={weightKg}
-        onChangeText={setWeightKg}
-        placeholder="1.5"
-        keyboardType="numeric"
-      />
+        <Text style={styles.label}>To city</Text>
+        <Input
+          value={toCity}
+          onChangeText={setToCity}
+          placeholder="CHN"
+        />
 
-      <Text style={styles.label}>Declared value (₹)</Text>
-      <Input
-        value={declaredValue}
-        onChangeText={setDeclaredValue}
-        placeholder="3000"
-        keyboardType="numeric"
-      />
+        <Text style={styles.label}>Travel date (YYYY-MM-DD)</Text>
+        <Input
+          value={travelDate}
+          onChangeText={setTravelDate}
+          placeholder="2026-02-01"
+          keyboardType="numeric"
+        />
 
-      <Button
-        title="Find travellers"
-        onPress={submit}
-        loading={loading}
-      />
+        <Text style={styles.label}>Item name</Text>
+        <Input
+          value={itemName}
+          onChangeText={setItemName}
+          placeholder="Documents"
+        />
+
+        <Text style={styles.label}>Category</Text>
+        <TouchableOpacity
+          style={styles.categoryField}
+          onPress={() => setShowCategoryModal(true)}
+        >
+          <Text
+            style={{
+              color: category ? colors.textPrimary : colors.textSecondary,
+            }}
+          >
+            {category ? category.label : "Select category"}
+          </Text>
+        </TouchableOpacity>
+
+        <Text style={styles.label}>Weight (kg)</Text>
+        <Input
+          value={weightKg}
+          onChangeText={setWeightKg}
+          placeholder="1.5"
+          keyboardType="numeric"
+        />
+
+        <Text style={styles.label}>Declared value (₹)</Text>
+        <Input
+          value={declaredValue}
+          onChangeText={setDeclaredValue}
+          placeholder="3000"
+          keyboardType="numeric"
+        />
+
+        <Button
+          title="Find travellers"
+          onPress={submit}
+          loading={loading}
+        />
+
+        <CategoryModal
+          visible={showCategoryModal}
+          categories={categories}
+          onSelect={(cat) => setCategory(cat)}
+          onClose={() => setShowCategoryModal(false)}
+        />
       </ScrollView>
+
     </Screen>
   );
 }
@@ -122,5 +163,14 @@ const styles = StyleSheet.create({
     color: colors.danger,
     marginBottom: spacing.sm,
     ...typography.body,
+  },
+
+  categoryField: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 8,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.sm,
   },
 });
