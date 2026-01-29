@@ -3,6 +3,7 @@ import HomeScreen from "../screens/home/HomeScreen";
 import CreateDeliveryScreen from "../screens/deliveries/CreateDeliveryScreen";
 import CreateTripScreen from "../screens/trips/CreateTripScreen";
 import SearchTripsScreen from "../screens/trips/SearchTripsScreen";
+import PricingScreen from "../screens/pricing/PricingScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -22,10 +23,18 @@ export default function HomeStack() {
         options={{ title: "Send an item" }}
       />
 
+      {/* Search trips */}
       <Stack.Screen
         name="SearchTrips"
         component={SearchTripsScreen}
         options={{ title: "Search trips" }}
+      />
+
+      {/* Pricing */}
+      <Stack.Screen
+        name="Pricing"
+        component={PricingScreen}
+        options={{ title: "Pricing quote" }}
       />
 
       {/* Traveller flow */}

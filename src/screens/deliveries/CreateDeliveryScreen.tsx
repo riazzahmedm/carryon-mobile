@@ -44,15 +44,19 @@ export default function CreateDeliveryScreen({ navigation }: any) {
     }
 
     try {
+      isSubmittingRef.current = true;
       setLoading(true);
       const delivery = await createDelivery({
         itemName: itemName.trim(),
         itemCategory: category.id,
         weightKg: Number(weightKg),
         declaredValue: Number(declaredValue),
+        fromCity: fromCity.trim(),
+        toCity: toCity.trim(),
+        travelDate: travelDate,
       });
-
       navigation.replace("SearchTrips", {
+        deliveryId: delivery.id,
         fromCity: fromCity.trim(),
         toCity: toCity.trim(),
         date: travelDate,
@@ -80,7 +84,7 @@ export default function CreateDeliveryScreen({ navigation }: any) {
         <Input
           value={toCity}
           onChangeText={setToCity}
-          placeholder="CHN"
+          placeholder="BLR"
         />
 
         <Text style={styles.label}>Travel date (YYYY-MM-DD)</Text>

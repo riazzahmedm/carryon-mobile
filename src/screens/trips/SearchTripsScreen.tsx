@@ -2,14 +2,20 @@ import { Text, ActivityIndicator, FlatList } from "react-native";
 import { Screen } from "../../components/Screen";
 import { useSearchTrips } from "../../hooks/useSearchTrips";
 import { TripCard } from "../../components/TripCard";
+import { useEffect } from "react";
 
 export default function SearchTripsScreen({ route, navigation }: any) {
-  const { fromCity, toCity, date } = route.params;
+  const { deliveryId, fromCity, toCity, date } = route.params;
+  const normalizedDate = new Date(date).toISOString().split("T")[0];
 
-  const { data, isLoading, isError } = useSearchTrips(
+  const { data, isLoading, isError,
+    refetch,
+    isRefetching,
+  } = useSearchTrips(
+    deliveryId,
     fromCity,
     toCity,
-    date
+    normalizedDate
   );
 
   if (isLoading) {
@@ -50,12 +56,15 @@ export default function SearchTripsScreen({ route, navigation }: any) {
             trip={item}
             onSelect={() =>
               navigation.navigate("Pricing", {
+                deliveryId,
                 tripId: item.id,
               })
             }
           />
         )}
         showsVerticalScrollIndicator={false}
+        refreshing={isRefetching}
+        onRefresh={refetch}
       />
     </Screen>
   );
