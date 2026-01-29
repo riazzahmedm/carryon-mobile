@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { colors, spacing, typography } from "../theme";
 import { Trip } from "../api/trips";
+import { STATUS_COLORS } from "../utils/common";
 
 type Props = {
   trip: Trip;
@@ -15,19 +16,29 @@ export function TripCard({ trip, onSelect }: Props) {
       activeOpacity={0.85}
     >
       <Text style={styles.name}>
-        {trip.user.fullName || "Traveller"}
+        {trip?.user?.fullName || "Traveller"}
       </Text>
 
       <Text style={styles.route}>
-        {trip.fromCity} → {trip.toCity}
+        {trip?.fromCity} → {trip?.toCity}
       </Text>
 
       <Text style={styles.meta}>
-        Flight: {new Date(trip.flightDate).toLocaleDateString()}
+        Flight: {new Date(trip?.flightDate).toLocaleDateString()}
       </Text>
 
       <Text style={styles.meta}>
-        Capacity left: {trip.capacityKg} kg
+        Capacity left: {trip?.capacityKg} kg
+      </Text>
+
+      <Text
+        style={{
+          color: STATUS_COLORS[trip?.tripStatus],
+          fontWeight: "600",
+          marginTop: 4,
+        }}
+      >
+        {trip?.tripStatus.replace("_", " ")}
       </Text>
     </TouchableOpacity>
   );

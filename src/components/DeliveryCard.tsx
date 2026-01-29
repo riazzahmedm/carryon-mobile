@@ -14,6 +14,14 @@ export function DeliveryCard({ delivery, onPress }: any) {
         {delivery.weightKg} kg • ₹{delivery.declaredValue}
       </Text>
 
+      <Text style={styles.route}>
+        {delivery?.fromCity} → {delivery?.toCity}
+      </Text>
+
+      <Text style={styles.date}>
+        {(delivery?.travelDate).split("T")[0]}
+      </Text>
+
       <Text style={styles.status}>
         Status:{" "}
         <Text style={{ fontWeight: "600" }}>
@@ -41,9 +49,18 @@ const styles = StyleSheet.create({
   meta: {
     ...typography.caption,
     color: colors.textSecondary,
+    marginBottom: spacing.xs
   },
   status: {
     marginTop: spacing.sm,
     ...typography.caption,
+  },
+  route: {
+    ...typography.body,
+    fontWeight: 600,
+    marginBottom: spacing.xs,
+  },
+  date: {
+    marginBottom: spacing.xs,
   },
 });

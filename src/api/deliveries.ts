@@ -33,3 +33,23 @@ export const matchDelivery = async (
   );
   return res.data;
 };
+
+export const approveDelivery = async (deliveryId: string) => {
+  const res = await api.post(`/deliveries/${deliveryId}/approve`);
+  return res.data;
+};
+
+export const rejectDelivery = async (deliveryId: string) => {
+  const res = await api.post(`/deliveries/${deliveryId}/reject`);
+  return res.data;
+};
+
+export const pickupDelivery = async (deliveryId: string) => {
+  const res = await api.post(`/deliveries/${deliveryId}/pickup`);
+  return res.data;
+};
+
+export const confirmDelivery = async (deliveryId: string) => {
+  const res = await api.post(`/deliveries/${deliveryId}/confirm`);
+  return res.data;
+};

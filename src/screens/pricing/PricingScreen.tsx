@@ -40,7 +40,7 @@ export default function PricingScreen({ route, navigation }: any) {
       await matchDelivery(deliveryId, tripId);
       queryClient.invalidateQueries({ queryKey: ["myDeliveries"] });
       showSuccess("Delivery matched successfully");
-      navigation.navigate("Home");
+      navigation.popToTop();
     } catch {
       showError("Failed to confirm delivery");
     } finally {

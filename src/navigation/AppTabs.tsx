@@ -2,6 +2,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import HomeStack from "./HomeStack";
 import ProfileStack from "./ProfileStack";
 import DeliveriesStack from "./DeliveriesStack";
+import TripsStack from "./TripsStack";
 
 const Tab = createBottomTabNavigator();
 
@@ -12,6 +13,11 @@ export default function AppTabs() {
         name="HomeTab"
         component={HomeStack}
         options={{ headerShown: false, title: "Home" }}
+      />
+      <Tab.Screen
+        name="TripsTab"
+        component={TripsStack}
+        options={{ headerShown: false, title: "Trips" }}
       />
       <Tab.Screen
         name="DeliveriesTab"

@@ -1,3 +1,4 @@
+import { TripStatus } from "../utils/common";
 import { api } from "./client";
 
 export type Trip = {
@@ -10,7 +11,24 @@ export type Trip = {
     id: string;
     fullName: string;
   };
+  tripStatus: TripStatus;
 };
+
+export const getMyTrips = async (): Promise<Trip[]> => {
+  const res = await api.get("/trips/my");
+  return res.data;
+};
+
+export const createTrip = async (data: {
+  fromCity: string;
+  toCity: string;
+  flightDate: string;
+  capacityKg: number;
+}) => {
+  const res = await api.post("/trips", data);
+  return res.data;
+};
+
 
 export const searchTrips = async (params: {
   fromCity: string;
@@ -22,3 +40,4 @@ export const searchTrips = async (params: {
   });
   return res.data;
 };
+
