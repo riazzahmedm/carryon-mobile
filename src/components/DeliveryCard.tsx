@@ -1,5 +1,6 @@
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { colors, spacing, typography } from "../theme";
+import { DEL_STATUS_COLORS, DeliveryStatus, STATUS_COLORS } from "../utils/common";
 
 export function DeliveryCard({ delivery, onPress }: any) {
   return (
@@ -24,7 +25,7 @@ export function DeliveryCard({ delivery, onPress }: any) {
 
       <Text style={styles.status}>
         Status:{" "}
-        <Text style={{ fontWeight: "600" }}>
+        <Text style={{ fontWeight: "600", color: DEL_STATUS_COLORS[delivery?.status as DeliveryStatus], }}>
           {delivery.status}
         </Text>
       </Text>

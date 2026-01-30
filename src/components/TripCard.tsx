@@ -38,7 +38,7 @@ export function TripCard({ trip, onSelect }: Props) {
           marginTop: 4,
         }}
       >
-        {trip?.tripStatus.replace("_", " ")}
+        {trip?.tripStatus?.replace("_", " ")}
       </Text>
     </TouchableOpacity>
   );

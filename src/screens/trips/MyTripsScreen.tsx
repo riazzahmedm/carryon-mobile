@@ -4,6 +4,7 @@ import { useMyTrips } from "../../hooks/useMyTrips";
 import { TripCard } from "../../components/TripCard";
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback } from "react";
+import { TravellerEarningsCard } from "../../components/TravellerEarningsCard";
 
 export default function MyTripsScreen({ navigation }: any) {
   const {
@@ -47,6 +48,7 @@ export default function MyTripsScreen({ navigation }: any) {
 
   return (
     <Screen>
+      <TravellerEarningsCard/>
       <FlatList
         data={data}
         keyExtractor={(item) => item.id}

@@ -14,6 +14,11 @@ export type Trip = {
   tripStatus: TripStatus;
 };
 
+type TravellerEarningSummary = {
+  pending: number;
+  completed: number;
+};
+
 export const getMyTrips = async (): Promise<Trip[]> => {
   const res = await api.get("/trips/my");
   return res.data;
@@ -41,3 +46,7 @@ export const searchTrips = async (params: {
   return res.data;
 };
 
+export const fetchTravellerEarningSummary = async (): Promise<TravellerEarningSummary> => {
+  const res = await api.get("/trips/earnings/summary");
+  return res.data;
+};

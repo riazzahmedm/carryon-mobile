@@ -16,6 +16,7 @@ export const useDeliveryActions = (tripId: string) => {
    const invalidateAll = () => {
     queryClient.invalidateQueries({ queryKey: ["tripDeliveries", tripId] });
     queryClient.invalidateQueries({ queryKey: ["myTrips"] });
+    queryClient.invalidateQueries({ queryKey: ["travellerEarnings"] });
   };
 
   const approve = useMutation({
