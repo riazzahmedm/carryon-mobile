@@ -11,33 +11,29 @@ export default function HomeStack() {
   return (
     <Stack.Navigator>
       <Stack.Screen
-        name="Home"
+        name="HomeScreen"
         component={HomeScreen}
         options={{ headerShown: false }}
       />
 
-      {/* Sender flow */}
       <Stack.Screen
         name="CreateDelivery"
         component={CreateDeliveryScreen}
         options={{ title: "Send an item" }}
       />
 
-      {/* Search trips */}
       <Stack.Screen
         name="SearchTrips"
         component={SearchTripsScreen}
         options={{ title: "Search trips" }}
       />
 
-      {/* Pricing */}
       <Stack.Screen
         name="Pricing"
         component={PricingScreen}
         options={{ title: "Pricing quote" }}
       />
 
-      {/* Traveller flow */}
       <Stack.Screen
         name="CreateTrip"
         component={CreateTripScreen}
@@ -46,3 +42,4 @@ export default function HomeStack() {
     </Stack.Navigator>
   );
 }
+

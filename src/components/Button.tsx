@@ -3,14 +3,20 @@ import {
   Text,
   ActivityIndicator,
   StyleSheet,
+  ViewStyle,
 } from "react-native";
 import { colors, spacing, typography } from "../theme";
+
+type ButtonVariant = "primary" | "outline" | "ghost";
 
 type Props = {
   title: string;
   onPress: () => void;
   loading?: boolean;
   disabled?: boolean;
+  variant?: ButtonVariant;
+  style?: ViewStyle;
+  transparent?: boolean;
 };
 
 export function Button({
@@ -18,35 +24,72 @@ export function Button({
   onPress,
   loading = false,
   disabled = false,
+  variant = "primary",
+  style,
+  transparent = false
 }: Props) {
+  const isDisabled = disabled || loading;
+
   return (
     <TouchableOpacity
-      style={[styles.button, disabled && styles.disabled]}
+      activeOpacity={0.85}
+      disabled={isDisabled}
       onPress={onPress}
-      disabled={disabled || loading}
-      activeOpacity={0.8}
+      style={[
+        styles.base,
+        transparent ? {backgroundColor: "transparent"}: styles[variant],
+        isDisabled && styles.disabled,
+        style,
+      ]}
     >
       {loading ? (
-        <ActivityIndicator color={colors.white} />
+        <ActivityIndicator
+          color={variant === "primary" ? colors.white : colors.primary}
+        />
       ) : (
-        <Text style={styles.text}>{title}</Text>
+        <Text
+          style={[
+            styles.text,
+            variant !== "primary" && { color: colors.primary },
+          ]}
+        >
+          {title}
+        </Text>
       )}
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
-  button: {
-    backgroundColor: colors.primary,
-    paddingVertical: spacing.md,
-    borderRadius: 8,
+  base: {
+    height: 52,
+    borderRadius: 14,
     alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: spacing.lg,
   },
+
+  primary: {
+    backgroundColor: colors.primary,
+  },
+
+  outline: {
+    borderWidth: 1.5,
+    borderColor: colors.primary,
+    backgroundColor: "transparent",
+  },
+
+  ghost: {
+    backgroundColor: "transparent",
+  },
+
   text: {
-    color: colors.white,
     ...typography.button,
+    color: colors.white,
+    letterSpacing: 0.3,
   },
+
   disabled: {
-    opacity: 0.6,
+    opacity: 0.5,
   },
 });

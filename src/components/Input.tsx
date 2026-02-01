@@ -24,18 +24,17 @@ export function Input({
       placeholder={placeholder}
       keyboardType={keyboardType}
       maxLength={maxLength}
+      placeholderTextColor={colors.textSecondary}
+      autoFocus
     />
   );
 }
 
 const styles = StyleSheet.create({
   input: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 8,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.md,
+    flex: 1,
     fontSize: 18,
-    textAlign: "center",
+    paddingVertical: spacing.md,
+    color: colors.textPrimary,
   },
 });

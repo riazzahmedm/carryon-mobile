@@ -1,34 +1,29 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { View, Pressable, StyleSheet } from "react-native";
+import { Home, Map, Truck, User } from "lucide-react-native";
+
 import HomeStack from "./HomeStack";
-import ProfileStack from "./ProfileStack";
-import DeliveriesStack from "./DeliveriesStack";
 import TripsStack from "./TripsStack";
+import DeliveriesStack from "./DeliveriesStack";
+import ProfileStack from "./ProfileStack";
+import { FloatingTabBar } from "../components/FloatingTabBar";
 
 const Tab = createBottomTabNavigator();
 
 export default function AppTabs() {
   return (
-    <Tab.Navigator>
-      <Tab.Screen
-        name="HomeTab"
-        component={HomeStack}
-        options={{ headerShown: false, title: "Home" }}
-      />
-      <Tab.Screen
-        name="TripsTab"
-        component={TripsStack}
-        options={{ headerShown: false, title: "Trips" }}
-      />
-      <Tab.Screen
-        name="DeliveriesTab"
-        component={DeliveriesStack}
-        options={{ headerShown: false, title: "Deliveries" }}
-      />
-      <Tab.Screen
-        name="ProfileTab"
-        component={ProfileStack}
-        options={{ headerShown: false, title: "Profile" }}
-      />
+    <Tab.Navigator
+      screenOptions={{
+        headerShown: false,
+        tabBarShowLabel: false,
+      }}
+      tabBar={(props) => <FloatingTabBar {...props} />}
+    >
+      <Tab.Screen name="HomeTab" component={HomeStack} />
+      <Tab.Screen name="TripsTab" component={TripsStack} />
+      <Tab.Screen name="DeliveriesTab" component={DeliveriesStack} />
+      <Tab.Screen name="ProfileTab" component={ProfileStack} />
     </Tab.Navigator>
   );
 }
+
