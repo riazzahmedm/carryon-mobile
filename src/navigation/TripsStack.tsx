@@ -10,12 +10,16 @@ export default function TripsStack() {
       <Stack.Screen
         name="MyTrips"
         component={MyTripsScreen}
-        options={{ title: "My Trips" }}
+        options={{
+          headerShown: false
+        }}
       />
       <Stack.Screen
         name="TripDetails"
         component={TripDetailsScreen}
-         options={{ title: "Selected Trip" }}
+        options={{
+          headerShown: false
+        }}
       />
     </Stack.Navigator>
   );

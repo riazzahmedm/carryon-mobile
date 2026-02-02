@@ -47,6 +47,7 @@ export default function PhoneScreen({ navigation }: any) {
           placeholder="99999 99999"
           keyboardType="phone-pad"
           maxLength={10}
+          noBorder
         />
       </View>
 

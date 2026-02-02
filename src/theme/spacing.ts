@@ -1,7 +1,9 @@
 export const spacing = {
-  xs: 4,
-  sm: 8,
-  md: 16,
-  lg: 24,
-  xl: 32,
+  xxs: 2,   // hairline gaps, icon nudges
+  xs: 4,    // tight spacing
+  sm: 8,    // small gaps (labels, inline items)
+  md: 16,   // default spacing
+  lg: 24,   // section spacing
+  xl: 32,   // major separation
+  xxl: 40,  // screen-level spacing
 };

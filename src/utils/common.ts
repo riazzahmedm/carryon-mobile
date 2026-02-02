@@ -27,3 +27,16 @@ export const DEL_STATUS_COLORS: Record<DeliveryStatus, string>  = {
   PICKED_UP: "#872AE4",
   DELIVERED: "#2E7D32",
 };
+
+export type Airport = {
+  code: string;   // HYD
+  label: string;  // Hyderabad (HYD)
+};
+
+export const airports: Airport[] = [
+  { code: "HYD", label: "Hyderabad (HYD)" },
+  { code: "BLR", label: "Bangalore (BLR)" },
+  { code: "DEL", label: "Delhi (DEL)" },
+  { code: "BOM", label: "Mumbai (BOM)" },
+  { code: "MAA", label: "Chennai (MAA)" },
+];

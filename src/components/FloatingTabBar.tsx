@@ -5,7 +5,7 @@ import {
   Animated,
   Easing,
 } from "react-native";
-import { Home, Map, Truck, User } from "lucide-react-native";
+import { Home, Package, PlaneTakeoff, User } from "lucide-react-native";
 import { colors } from "../theme";
 import { useEffect, useRef } from "react";
 
@@ -14,8 +14,8 @@ const TAB_COUNT = 4;
 export function FloatingTabBar({ state, navigation }: any) {
    const icons: Record<string, any> = {
     HomeTab: Home,
-    TripsTab: Map,
-    DeliveriesTab: Truck,
+    TripsTab: PlaneTakeoff,
+    DeliveriesTab: Package,
     ProfileTab: User,
   };
 

@@ -11,15 +11,23 @@ export default function DeliveriesStack() {
       <Stack.Screen
         name="MyDeliveries"
         component={MyDeliveriesScreen}
-        options={{ title: "My Deliveries" }}
+        options={{
+          headerShown: false
+        }}
       />
       <Stack.Screen
         name="SearchTrips"
         component={SearchTripsScreen}
+        options={{
+          headerShown: false
+        }}
       />
       <Stack.Screen
         name="Pricing"
         component={PricingScreen}
+         options={{
+          headerShown: false
+        }}
       />
     </Stack.Navigator>
   );

@@ -14,39 +14,40 @@ export default function MyDeliveriesScreen({ navigation }: any) {
     isRefetching,
   } = useMyDeliveries();
 
-  // Refetch when screen comes into focus
   useFocusEffect(
     useCallback(() => {
       refetch();
-    }, [])
+    }, [refetch])
   );
 
   if (isLoading) {
     return (
       <Screen>
-        <ActivityIndicator />
+        <ActivityIndicator style={{ marginTop: 40 }} />
       </Screen>
     );
   }
 
-  if (isError || !data) {
+  if (isError) {
     return (
       <Screen>
-        <Text>Failed to load deliveries</Text>
-      </Screen>
-    );
-  }
-
-  if (data.length === 0) {
-    return (
-      <Screen>
-        <Text>No deliveries yet.</Text>
+        <Text style={{ marginTop: 40 }}>
+          Failed to load deliveries
+        </Text>
       </Screen>
     );
   }
 
   return (
     <Screen>
+      {/* Header */}
+      <Text style={{ fontSize: 22, fontWeight: "600", marginBottom: 4 }}>
+        My deliveries
+      </Text>
+      <Text style={{ color: "#666", marginBottom: 16 }}>
+        Track and manage items you’ve sent
+      </Text>
+
       <FlatList
         data={data}
         keyExtractor={(item) => item.id}
@@ -66,9 +67,18 @@ export default function MyDeliveriesScreen({ navigation }: any) {
           />
         )}
         showsVerticalScrollIndicator={false}
+        contentContainerStyle={{
+          paddingBottom: 24,
+        }}
         refreshing={isRefetching}
         onRefresh={refetch}
+        ListEmptyComponent={
+          <Text style={{ marginTop: 40, textAlign: "center", color: "#666" }}>
+            No deliveries yet
+          </Text>
+        }
       />
     </Screen>
   );
 }
+

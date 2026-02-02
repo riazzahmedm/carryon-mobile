@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Text, StyleSheet } from "react-native";
+import { Text, StyleSheet, View } from "react-native";
 import { Screen } from "../../components/Screen";
 import { Button } from "../../components/Button";
 import { Input } from "../../components/Input";
@@ -20,19 +20,18 @@ export default function ProfileScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Initialize form when data loads
   useEffect(() => {
     if (data) {
       setFullName(data.fullName || "");
       setEmail(data.email || "");
-      setEditing(!data.profileDone); // 👈 auto-edit if incomplete
+      setEditing(!data.profileDone);
     }
   }, [data]);
 
   if (isLoading) {
     return (
       <Screen>
-        <Text>Loading profile...</Text>
+        <Text>Loading profile…</Text>
       </Screen>
     );
   }
@@ -40,7 +39,7 @@ export default function ProfileScreen() {
   if (isError || !data) {
     return (
       <Screen>
-        <Text style={styles.error}>Failed to load profile</Text>
+        <Text style={styles.error}>Unable to load profile</Text>
       </Screen>
     );
   }
@@ -61,7 +60,6 @@ export default function ProfileScreen() {
       });
 
       await queryClient.invalidateQueries({ queryKey: ["me"] });
-
       setEditing(false);
     } catch {
       setError("Failed to update profile");
@@ -71,41 +69,49 @@ export default function ProfileScreen() {
   };
 
   return (
-    <Screen>
-      <Text style={styles.title}>Profile</Text>
+    <Screen scroll>
+      {/* Header */}
+      <Text style={styles.title}>Your profile</Text>
+      <Text style={styles.subtitle}>
+        Keep your details up to date
+      </Text>
 
-      {/* Name */}
-      <Text style={styles.label}>Name</Text>
-      {editing ? (
-        <Input
-          value={fullName}
-          onChangeText={setFullName}
-          placeholder="Your full name"
-        />
-      ) : (
-        <Text style={styles.value}>
-          {data.fullName || "Not provided"}
-        </Text>
-      )}
+      {/* Profile card */}
+      <View style={styles.card}>
+        {/* Name */}
+        <Text style={styles.label}>Full name</Text>
+        {editing ? (
+          <Input
+            value={fullName}
+            onChangeText={setFullName}
+            placeholder="Your full name"
+          />
+        ) : (
+          <Text style={styles.value}>
+            {data.fullName || "Not provided"}
+          </Text>
+        )}
 
-      {/* Phone (always read-only) */}
-      <Text style={styles.label}>Phone</Text>
-      <Text style={styles.value}>{data.phone}</Text>
+        {/* Phone */}
 
-      {/* Email */}
-      <Text style={styles.label}>Email</Text>
-      {editing ? (
-        <Input
-          value={email}
-          onChangeText={setEmail}
-          placeholder="you@example.com"
-          keyboardType="email-address"
-        />
-      ) : (
-        <Text style={styles.value}>
-          {data.email || "Not provided"}
-        </Text>
-      )}
+        <Text style={styles.label}>Phone</Text>
+        <Text style={styles.value}>{data.phone}</Text>
+
+        {/* Email */}
+        <Text style={styles.label}>Email</Text>
+        {editing ? (
+          <Input
+            value={email}
+            onChangeText={setEmail}
+            placeholder="you@example.com"
+            keyboardType="email-address"
+          />
+        ) : (
+          <Text style={styles.value}>
+            {data.email || "Not provided"}
+          </Text>
+        )}
+      </View>
 
       {/* Status */}
       <Text style={styles.status}>
@@ -127,7 +133,7 @@ export default function ProfileScreen() {
       {/* Primary CTA */}
       {editing ? (
         <Button
-          title="Save profile"
+          title="Save changes"
           onPress={saveProfile}
           loading={loading}
         />
@@ -138,19 +144,38 @@ export default function ProfileScreen() {
         />
       )}
 
-      {/* Logout */}
-      <Text style={styles.spacer} />
-      <Text onPress={signOut} style={styles.logout}>
-        Logout
-      </Text>
+      {/* Logout (separated) */}
+      <View style={styles.logoutWrap}>
+        <Text onPress={signOut} style={styles.logout}>
+          Log out
+        </Text>
+      </View>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
   title: {
-    ...typography.title,
+    ...typography.h2,
+    marginBottom: spacing.xs,
+  },
+
+  subtitle: {
+    ...typography.bodySmall,
+    color: colors.textSecondary,
     marginBottom: spacing.lg,
+  },
+
+  card: {
+    backgroundColor: colors.white,
+    borderRadius: 16,
+    padding: spacing.lg,
+    marginBottom: spacing.lg,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 2,
   },
 
   label: {
@@ -165,24 +190,24 @@ const styles = StyleSheet.create({
   },
 
   status: {
-    marginTop: spacing.lg,
     ...typography.body,
+    marginBottom: spacing.md,
   },
 
-  spacer: {
+  logoutWrap: {
     marginTop: spacing.xl,
+    alignItems: "center",
   },
 
   logout: {
     color: colors.danger,
     fontWeight: "600",
-    textAlign: "center",
-    marginTop: spacing.md,
   },
 
   error: {
     color: colors.danger,
-    marginTop: spacing.sm,
+    marginBottom: spacing.sm,
     ...typography.body,
   },
 });
+

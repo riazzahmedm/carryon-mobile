@@ -8,36 +8,34 @@ import {
 } from "react-native";
 import { colors, spacing, typography } from "../theme";
 
-type Category = {
-  id: string;
-  label: string;
+type Item = {
+  id: string;     // categoryId OR airportCode
+  label: string;  // display label
 };
 
 type Props = {
   visible: boolean;
-  categories: Category[];
-  onSelect: (category: Category) => void;
+  title: string;
+  items: Item[];
+  onSelect: (item: Item) => void;
   onClose: () => void;
 };
 
-export function CategoryModal({
+export function SelectModal({
   visible,
-  categories,
+  title,
+  items,
   onSelect,
   onClose,
 }: Props) {
   return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      transparent
-    >
+    <Modal visible={visible} animationType="slide" transparent>
       <View style={styles.overlay}>
         <View style={styles.container}>
-          <Text style={styles.title}>Select category</Text>
+          <Text style={styles.title}>{title}</Text>
 
           <FlatList
-            data={categories}
+            data={items}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
               <TouchableOpacity

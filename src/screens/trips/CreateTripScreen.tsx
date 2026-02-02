@@ -1,27 +1,50 @@
 import { useState } from "react";
-import { Text, StyleSheet, ScrollView } from "react-native";
+import { Text, StyleSheet, ScrollView, TouchableOpacity, View } from "react-native";
 import { Screen } from "../../components/Screen";
 import { Input } from "../../components/Input";
 import { Button } from "../../components/Button";
 import { createTrip } from "../../api/trips";
 import { colors, spacing, typography } from "../../theme";
-import { showError, showSuccess } from "../../utils/toast";
+import { toast } from "../../utils/toast";
+import { ScreenHeader } from "../../components/ScreenHeader";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { Airport, airports } from "../../utils/common";
+import { SelectModal } from "../../components/SelectModal";
 
 export default function CreateTripScreen({ navigation }: any) {
-  const [fromCity, setFromCity] = useState("");
-  const [toCity, setToCity] = useState("");
-  const [flightDate, setFlightDate] = useState("");
+  const [fromAirport, setFromAirport] = useState<Airport | null>(null);
+  const [toAirport, setToAirport] = useState<Airport | null>(null);
+  const [travelDate, setTravelDate] = useState("");
   const [capacityKg, setCapacityKg] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const [showFromModal, setShowFromModal] = useState(false);
+  const [showToModal, setShowToModal] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
+  const airportItems = airports.map((a) => ({
+    id: a.code,
+    label: a.label,
+  }));
+
+  const getToday = () => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  };
+
+
+  const formatDate = (date: Date) =>
+    date.toISOString().split("T")[0];
+
   const submit = async () => {
-    if (!fromCity || !toCity || !flightDate || !capacityKg) {
-      showError("All fields are required");
+    if (!fromAirport || !toAirport || !travelDate || !capacityKg) {
+      toast.error("All fields are required");
       return;
     }
 
     if (Number(capacityKg) <= 0) {
-      showError("Capacity must be greater than 0");
+      toast.error("Capacity must be greater than 0");
       return;
     }
 
@@ -29,47 +52,76 @@ export default function CreateTripScreen({ navigation }: any) {
       setLoading(true);
 
       await createTrip({
-        fromCity: fromCity.trim(),
-        toCity: toCity.trim(),
-        flightDate,
+        fromCity: fromAirport.code,
+        toCity: toAirport.code,
+        flightDate: travelDate,
         capacityKg: Number(capacityKg),
       });
 
-      showSuccess("Trip created");
+      toast.success("Trip created successfully");
       navigation.goBack();
-    } catch (e) {
-      showError("Failed to create trip");
+    } catch {
+      toast.error("Failed to create trip");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Screen>
-      <Text style={styles.title}>Add a trip</Text>
+    <Screen scroll>
+      <ScreenHeader title="Add a trip" onBack={() => navigation.goBack()} />
 
-      <ScrollView>
-        <Text style={styles.label}>From city</Text>
-        <Input
-          value={fromCity}
-          onChangeText={setFromCity}
-          placeholder="HYD"
-        />
+      <View style={styles.card}>
+        <Text style={styles.label}>From</Text>
+        <TouchableOpacity
+          style={styles.select}
+          onPress={() => setShowFromModal(true)}
+        >
+          <Text style={{ color: fromAirport ? colors.textPrimary : colors.textSecondary }}>
+            {fromAirport?.label || "Select departure airport"}
+          </Text>
+        </TouchableOpacity>
 
-        <Text style={styles.label}>To city</Text>
-        <Input
-          value={toCity}
-          onChangeText={setToCity}
-          placeholder="BLR"
-        />
+        <Text style={styles.label}>To</Text>
+        <TouchableOpacity
+          style={styles.select}
+          onPress={() => setShowToModal(true)}
+        >
+          <Text style={{ color: toAirport ? colors.textPrimary : colors.textSecondary }}>
+            {toAirport?.label || "Select destination airport"}
+          </Text>
+        </TouchableOpacity>
 
-        <Text style={styles.label}>Flight date (YYYY-MM-DD)</Text>
-        <Input
-          value={flightDate}
-          onChangeText={setFlightDate}
-          placeholder="2026-02-01"
-          keyboardType="numeric"
-        />
+        <Text style={styles.label}>Travel date</Text>
+
+        <TouchableOpacity
+          style={styles.select}
+          onPress={() => setShowDatePicker(true)}
+          activeOpacity={0.8}
+        >
+          <Text
+            style={{
+              color: travelDate ? colors.textPrimary : colors.textSecondary,
+            }}
+          >
+            {travelDate || "Select date"}
+          </Text>
+        </TouchableOpacity>
+
+        {showDatePicker && (
+          <DateTimePicker
+            value={travelDate ? new Date(travelDate) : new Date()}
+            mode="date"
+            display="spinner" // iOS: spinner | inline | compact
+            minimumDate={new Date()}
+            onChange={(_, selectedDate) => {
+              setShowDatePicker(false);
+              if (selectedDate) {
+                setTravelDate(formatDate(selectedDate));
+              }
+            }}
+          />
+        )}
 
         <Text style={styles.label}>Available capacity (kg)</Text>
         <Input
@@ -78,26 +130,55 @@ export default function CreateTripScreen({ navigation }: any) {
           placeholder="5"
           keyboardType="numeric"
         />
+      </View>
 
-        <Button
-          title="Create trip"
-          onPress={submit}
-          loading={loading}
-        />
-      </ScrollView>
+      <Button title="Create trip" onPress={submit} loading={loading} />
+
+      {/* Modals */}
+      <SelectModal
+        visible={showFromModal}
+        title="Select departure airport"
+        items={airportItems}
+        onSelect={(i) => setFromAirport({ code: i.id, label: i.label })}
+        onClose={() => setShowFromModal(false)}
+      />
+
+      <SelectModal
+        visible={showToModal}
+        title="Select destination airport"
+        items={airportItems}
+        onSelect={(i) => setToAirport({ code: i.id, label: i.label })}
+        onClose={() => setShowToModal(false)}
+      />
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  title: {
-    ...typography.title,
+  card: {
+    backgroundColor: colors.white,
+    borderRadius: 18,
+    padding: spacing.lg,
     marginBottom: spacing.lg,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 2,
   },
   label: {
     ...typography.caption,
     color: colors.textSecondary,
-    marginTop: spacing.md,
+    marginTop: spacing.sm,
     marginBottom: spacing.xs,
+  },
+  select: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 12,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.md,
+    backgroundColor: colors.muted,
+    marginBottom: spacing.sm,
   },
 });

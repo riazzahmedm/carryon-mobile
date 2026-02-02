@@ -19,25 +19,33 @@ export default function HomeStack() {
       <Stack.Screen
         name="CreateDelivery"
         component={CreateDeliveryScreen}
-        options={{ title: "Send an item" }}
+        options={{
+          headerShown: false
+        }}
       />
 
       <Stack.Screen
         name="SearchTrips"
         component={SearchTripsScreen}
-        options={{ title: "Search trips" }}
+        options={{
+          headerShown: false
+        }}
       />
 
       <Stack.Screen
         name="Pricing"
         component={PricingScreen}
-        options={{ title: "Pricing quote" }}
+        options={{
+          headerShown: false
+        }}
       />
 
       <Stack.Screen
         name="CreateTrip"
         component={CreateTripScreen}
-        options={{ title: "Carry & earn" }}
+        options={{
+          headerShown: false
+        }}
       />
     </Stack.Navigator>
   );

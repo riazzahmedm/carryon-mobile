@@ -1,15 +1,15 @@
 import {
-  Text,
-  ActivityIndicator,
-  FlatList,
   View,
+  Text,
   StyleSheet,
+  FlatList,
 } from "react-native";
 import { Screen } from "../../components/Screen";
 import { Button } from "../../components/Button";
 import { colors, spacing, typography } from "../../theme";
 import { useDeliveryActions } from "../../hooks/useDeliveryActions";
-import { showError, showSuccess } from "../../utils/toast";
+import { toast } from "../../utils/toast";
+import { ScreenHeader } from "../../components/ScreenHeader";
 
 export default function TripDetailsScreen({ route, navigation }: any) {
   const { trip } = route.params;
@@ -25,105 +25,130 @@ export default function TripDetailsScreen({ route, navigation }: any) {
   const onApprove = (deliveryId: string) => {
     approve.mutate(deliveryId, {
       onSuccess: () => {
-        showSuccess("Delivery approved");
+        toast.success("Delivery approved");
         navigation.goBack();
       },
-      onError: () => showError("Failed to approve delivery"),
+      onError: () => toast.error("Failed to approve delivery"),
     });
   };
 
   const onReject = (deliveryId: string) => {
     reject.mutate(deliveryId, {
       onSuccess: () => {
-        showSuccess("Delivery rejected");
+        toast.success("Delivery rejected");
         navigation.goBack();
       },
-      onError: () => showError("Failed to reject delivery"),
+      onError: () => toast.error("Failed to reject delivery"),
     });
   };
 
   const onPickedUp = (deliveryId: string) => {
     pickup.mutate(deliveryId, {
       onSuccess: () => {
-        showSuccess("Delivery picked up");
+        toast.success("Delivery picked up");
         navigation.goBack();
       },
-      onError: () => showError("Failed to pick up delivery"),
+      onError: () => toast.error("Failed to pick up delivery"),
     });
   };
 
   const onDelivered = (deliveryId: string) => {
     deliver.mutate(deliveryId, {
       onSuccess: () => {
-        showSuccess("Delivered successfully");
+        toast.success("Delivered successfully");
         navigation.goBack();
       },
-      onError: () => showError("Failed to deliver item"),
+      onError: () => toast.error("Failed to deliver item"),
     });
   };
 
   return (
     <Screen>
-      {/* TRIP SUMMARY */}
-      <View style={styles.tripHeader}>
+       <ScreenHeader title="Trip Details" onBack={() => navigation.goBack()} />
+      
+      {/* Trip summary */}
+      <View style={styles.tripCard}>
         <Text style={styles.route}>
           {trip.fromCity} → {trip.toCity}
         </Text>
+
         <Text style={styles.meta}>
           {new Date(trip.flightDate).toDateString()}
         </Text>
-        <Text style={styles.meta}>Available space: {trip.capacityKg} KG</Text>
-        <Text style={styles.status}>
-          Status: {trip.tripStatus.replace("_", " ")}
-        </Text>
+
+        <View style={styles.tripRow}>
+          <Text style={styles.tripPill}>
+            Capacity: {trip.capacityKg} kg
+          </Text>
+
+          <Text style={styles.tripStatus}>
+            {trip.tripStatus.replace("_", " ")}
+          </Text>
+        </View>
       </View>
 
-      {/* DELIVERIES */}
-
+      {/* Deliveries */}
       <FlatList
         data={trip.deliveries}
         keyExtractor={(item) => item.id}
+        contentContainerStyle={{ paddingBottom: spacing.xl }}
         renderItem={({ item }) => (
-          <View style={styles.card}>
-            <Text style={styles.itemName}>{item.itemName}</Text>
-            <Text style={styles.itemName}>{item.weightKg} KG</Text>
-            <Text>Sender: {item?.sender?.fullName}</Text>
-            <Text>Status: {item.status}</Text>
+          <View style={styles.deliveryCard}>
+            {/* Header */}
+            <View style={styles.deliveryHeader}>
+              <Text style={styles.itemName}>{item.itemName}</Text>
+              <Text style={styles.weight}>{item.weightKg} kg</Text>
+            </View>
 
+            <Text style={styles.sender}>
+              Sender: {item?.sender?.fullName || "—"}
+            </Text>
+
+            <Text style={styles.deliveryStatus}>
+              Status: {item.status.replace("_", " ")}
+            </Text>
+
+            {/* Earnings */}
             <View style={styles.earningCard}>
-              <Text style={styles.earningLabel}>You will earn</Text>
-              <Text style={styles.earningAmount}>₹{item.travellerEarning}</Text>
+              <Text style={styles.earningLabel}>You’ll earn</Text>
+              <Text style={styles.earningAmount}>
+                ₹{item.travellerEarning}
+              </Text>
               <Text style={styles.earningNote}>
                 Paid after successful delivery
               </Text>
             </View>
 
-            {item.status === "MATCHED" && (
-              <>
-                <Button
-                  title="Approve & Carry"
-                  onPress={() => onApprove(item.id)}
-                />
-                <Button
-                  title="Reject"
-                  onPress={() => onReject(item.id)}
-                />
-              </>
-            )}
+            {/* Actions */}
+            <View style={styles.actions}>
+              {item.status === "MATCHED" && (
+                <>
+                  <Button
+                    title="Approve & carry"
+                    onPress={() => onApprove(item.id)}
+                  />
+                  <Button
+                    title="Reject"
+                    onPress={() => onReject(item.id)}
+                    transparent
+                  />
+                </>
+              )}
 
-            {item.status === "APPROVED" && (
-              <Button
-                title="Mark as picked up"
-                onPress={() => onPickedUp(item.id)}
-              />
-            )}
+              {item.status === "APPROVED" && (
+                <Button
+                  title="Mark as picked up"
+                  onPress={() => onPickedUp(item.id)}
+                />
+              )}
 
-            {item.status === "PICKED_UP" && (
-              <Button
-                title="Mark delivered"
-                onPress={() => onDelivered(item.id)}
-              />
-            )}
+              {item.status === "PICKED_UP" && (
+                <Button
+                  title="Mark delivered"
+                  onPress={() => onDelivered(item.id)}
+                />
+              )}
+            </View>
           </View>
         )}
       />
@@ -132,12 +157,22 @@ export default function TripDetailsScreen({ route, navigation }: any) {
 }
 
 const styles = StyleSheet.create({
-  tripHeader: {
+  /* Trip summary */
+  tripCard: {
+    backgroundColor: colors.white,
+    borderRadius: 20,
+    padding: spacing.lg,
     marginBottom: spacing.lg,
+    shadowColor: "#000",
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 3,
   },
 
   route: {
     ...typography.title,
+    marginBottom: spacing.xs,
   },
 
   meta: {
@@ -145,29 +180,69 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
 
-  status: {
-    marginTop: spacing.xs,
+  tripRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: spacing.sm,
+  },
+
+  tripPill: {
+    backgroundColor: colors.muted,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    borderRadius: 20,
     fontWeight: "600",
   },
 
-  card: {
+  tripStatus: {
+    fontWeight: "600",
+    color: colors.primary,
+  },
+
+  /* Delivery card */
+  deliveryCard: {
+    backgroundColor: colors.white,
+    borderRadius: 18,
+    padding: spacing.lg,
+    marginBottom: spacing.lg,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: 12,
-    padding: spacing.md,
-    marginBottom: spacing.md,
   },
 
-  itemName: {
-    fontWeight: "600",
+  deliveryHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: spacing.xs,
   },
 
+  itemName: {
+    ...typography.body,
+    fontWeight: "600",
+  },
+
+  weight: {
+    ...typography.caption,
+    color: colors.textSecondary,
+  },
+
+  sender: {
+    ...typography.caption,
+    marginBottom: spacing.xs,
+  },
+
+  deliveryStatus: {
+    ...typography.caption,
+    color: colors.textSecondary,
+    marginBottom: spacing.md,
+  },
+
+  /* Earnings */
   earningCard: {
     backgroundColor: "#F1F8F4",
     borderRadius: 16,
     padding: spacing.lg,
-    marginVertical: spacing.lg,
+    marginBottom: spacing.md,
     borderWidth: 1,
     borderColor: "#C8E6C9",
   },
@@ -188,5 +263,10 @@ const styles = StyleSheet.create({
   earningNote: {
     ...typography.caption,
     color: colors.textSecondary,
+  },
+
+  /* Actions */
+  actions: {
+    gap: spacing.sm,
   },
 });

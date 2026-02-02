@@ -35,7 +35,7 @@ export default function OnboardingScreen({ navigation }: any) {
       {/* Skip */}
       <TouchableOpacity
         style={styles.skip}
-        onPress={() => navigation.replace("Phone")}
+        onPress={() => navigation.replace("PhoneAuthScreen")}
       >
         <Text style={styles.skipText}>Skip</Text>
       </TouchableOpacity>

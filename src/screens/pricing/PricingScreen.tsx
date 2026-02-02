@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
-import { Text, StyleSheet, ActivityIndicator } from "react-native";
+import { Text, StyleSheet, ActivityIndicator, View, TouchableOpacity } from "react-native";
 import { Screen } from "../../components/Screen";
 import { Button } from "../../components/Button";
 import { colors, spacing, typography } from "../../theme";
 import { getPricingQuote } from "../../api/pricing";
 import { matchDelivery } from "../../api/deliveries";
-import { showError, showSuccess } from "../../utils/toast";
 import { Row } from "../../components/Row";
 import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "../../utils/toast";
+import { ScreenHeader } from "../../components/ScreenHeader";
 
 export default function PricingScreen({ route, navigation }: any) {
   const { deliveryId, tripId } = route.params;
@@ -15,23 +16,24 @@ export default function PricingScreen({ route, navigation }: any) {
   const [quote, setQuote] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [confirming, setConfirming] = useState(false);
+  const [showWhy, setShowWhy] = useState(false);
 
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    const loadQuote = async () => {
+    (async () => {
       try {
         const q = await getPricingQuote(deliveryId, tripId);
+        console.log(q);
+
         setQuote(q);
-      } catch (e) {
-        showError("Unable to calculate pricing");
+      } catch {
+        toast.error("Unable to calculate pricing");
         navigation.goBack();
       } finally {
         setLoading(false);
       }
-    };
-
-    loadQuote();
+    })();
   }, []);
 
   const confirm = async () => {
@@ -39,10 +41,10 @@ export default function PricingScreen({ route, navigation }: any) {
       setConfirming(true);
       await matchDelivery(deliveryId, tripId);
       queryClient.invalidateQueries({ queryKey: ["myDeliveries"] });
-      showSuccess("Delivery matched successfully");
+      toast.success("Delivery matched successfully");
       navigation.popToTop();
     } catch {
-      showError("Failed to confirm delivery");
+      toast.error("Failed to confirm delivery");
     } finally {
       setConfirming(false);
     }
@@ -51,35 +53,119 @@ export default function PricingScreen({ route, navigation }: any) {
   if (loading) {
     return (
       <Screen>
-        <ActivityIndicator />
+        <ActivityIndicator style={{ marginTop: 40 }} />
       </Screen>
     );
   }
 
   return (
-    <Screen>
-      <Text style={styles.title}>Confirm pricing</Text>
-
-      {/* Pricing breakdown */}
-      <Text style={styles.section}>Price breakdown</Text>
-
-      <Row label="Base price" value={`₹${quote.base}`} />
-      <Row label="Weight cost" value={`₹${quote.weightCost}`} />
-      <Row label="Platform fee" value={`₹${quote.platformFee}`} />
-
-      <Text style={styles.total}>
-        Total payable: ₹{quote.total}
+    <Screen scroll>
+      {/* Header */}
+      <ScreenHeader title="Confirm pricing" onBack={() => navigation.goBack()} />
+      <Text style={styles.subtitle}>
+        Review the cost before proceeding
       </Text>
 
-      {/* Risk warning */}
-      {quote.risk !== "LOW" && (
-        <Text style={styles.warning}>
-          ⚠️ This delivery requires additional verification
-        </Text>
-      )}
+      {/* Pricing card */}
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>Price breakdown</Text>
 
+        <Row label="Base price" value={`₹${quote.breakdown.base}`} />
+        <Row label="Weight cost" value={`₹${quote.breakdown.weightCost}`} />
+
+        {quote.breakdown.distanceFee > 0 && (
+          <Row label="Distance fee" value={`₹${quote.breakdown.distanceFee}`} />
+        )}
+
+        {quote.breakdown.urgencyFee > 0 && (
+          <Row label="Urgency fee" value={`₹${quote.breakdown.urgencyFee}`} />
+        )}
+
+        {quote.breakdown.riskFee > 0 && (
+          <Row label="Risk surcharge" value={`₹${quote.breakdown.riskFee}`} />
+        )}
+
+         <Row
+          label="Platform fee"
+          value={`₹${quote.platformFee}`}
+        />
+        
+        <View style={styles.divider} />
+
+        <Row
+          label="Total payable"
+          value={`₹${quote.total}`}
+        />
+
+        <TouchableOpacity
+          onPress={() => setShowWhy((v) => !v)}
+          activeOpacity={0.7}
+          style={styles.whyToggle}
+        >
+          <Text style={styles.whyText}>
+            Why this price?
+          </Text>
+          <Text style={styles.whyArrow}>
+            {showWhy ? "▲" : "▼"}
+          </Text>
+        </TouchableOpacity>
+
+        {showWhy && (
+          <View style={styles.whyBox}>
+            <Text style={styles.whyItem}>
+              • Base delivery fee: ₹{quote.breakdown.base}
+            </Text>
+
+            <Text style={styles.whyItem}>
+              • Weight cost ({quote.breakdown.weightCost > 0 ? "item weight" : "—"}): ₹{quote.breakdown.weightCost}
+            </Text>
+
+            {quote.breakdown.distanceFee > 0 && (
+              <Text style={styles.whyItem}>
+                • Distance adjustment: ₹{quote.breakdown.distanceFee}
+              </Text>
+            )}
+
+            {quote.breakdown.urgencyFee > 0 && (
+              <Text style={styles.whyItem}>
+                • Urgency (closer flight date): ₹{quote.breakdown.urgencyFee}
+              </Text>
+            )}
+
+            {quote.breakdown.riskFee > 0 && (
+              <Text style={styles.whyItem}>
+                • Additional verification: ₹{quote.breakdown.riskFee}
+              </Text>
+            )}
+
+            <Text style={styles.whyItem}>
+              • Platform service fee: ₹{quote.platformFee}
+            </Text>
+
+            <Text style={styles.whyNote}>
+              This ensures fair pricing for both sender and traveller.
+            </Text>
+          </View>
+        )}
+
+
+      </View>
+
+      {/* Risk notice */}
+      {/* {quote.risk !== "LOW" && (
+        <View style={styles.warningBox}>
+          <Text style={styles.warningTitle}>
+            Additional verification required
+          </Text>
+          <Text style={styles.warningText}>
+            This delivery may need extra checks for safety.
+          </Text>
+        </View>
+      )} */}
+
+      {/* CTA */}
       <Button
-        title={`Confirm & proceed ₹${quote.total}`}
+        title={`Confirm & pay ₹${quote.total}`}
         onPress={confirm}
         loading={confirming}
       />
@@ -89,24 +175,97 @@ export default function PricingScreen({ route, navigation }: any) {
 
 const styles = StyleSheet.create({
   title: {
-    ...typography.title,
+    ...typography.h2,
+    marginBottom: spacing.xs,
+  },
+
+  subtitle: {
+    ...typography.bodySmall,
+    color: colors.textSecondary,
     marginBottom: spacing.lg,
   },
 
-  section: {
-    ...typography.caption,
+  card: {
+    backgroundColor: colors.white,
+    borderRadius: 18,
+    padding: spacing.lg,
+    marginBottom: spacing.lg,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 2,
+  },
+
+  cardTitle: {
+    ...typography.body,
+    fontWeight: "600",
     marginBottom: spacing.md,
+  },
+
+  divider: {
+    height: 1,
+    backgroundColor: colors.border,
+    marginVertical: spacing.md,
+  },
+
+  warningBox: {
+    backgroundColor: "#FFF8E1",
+    borderRadius: 12,
+    padding: spacing.md,
+    marginBottom: spacing.lg,
+    borderWidth: 1,
+    borderColor: "#FFE082",
+  },
+
+  warningTitle: {
+    ...typography.body,
+    fontWeight: "600",
+    marginBottom: spacing.xs,
+    color: colors.warning,
+  },
+
+  warningText: {
+    ...typography.caption,
     color: colors.textSecondary,
   },
 
-  total: {
-    marginTop: spacing.lg,
-    fontSize: 22,
-    fontWeight: "700",
+  whyToggle: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: spacing.md,
+    paddingVertical: spacing.sm,
   },
 
-  warning: {
-    marginVertical: spacing.md,
-    color: colors.warning,
+  whyText: {
+    ...typography.caption,
+    fontWeight: "600",
+    color: colors.primary,
+  },
+
+  whyArrow: {
+    color: colors.primary,
+    fontSize: 12,
+  },
+
+  whyBox: {
+    backgroundColor: colors.muted,
+    borderRadius: 12,
+    padding: spacing.md,
+    marginTop: spacing.sm,
+  },
+
+  whyItem: {
+    ...typography.caption,
+    marginBottom: spacing.xs,
+    color: colors.textSecondary,
+  },
+
+  whyNote: {
+    ...typography.caption,
+    marginTop: spacing.sm,
+    color: colors.textSecondary,
+    fontStyle: "italic",
   },
 });

@@ -4,6 +4,7 @@ import {
   ViewStyle,
   KeyboardAvoidingView,
   Platform,
+  ImageBackground,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors, spacing } from "../theme";
@@ -23,16 +24,16 @@ export function Screen({ children, scroll = false, style }: Props) {
         style={styles.flex}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-        <Content
-          {...(scroll && {
-            contentContainerStyle: styles.scrollContent,
-            showsVerticalScrollIndicator: false,
-          })}
-        >
-          <React.Fragment>
-            <Container style={style}>{children}</Container>
-          </React.Fragment>
-        </Content>
+          <Content
+            {...(scroll && {
+              contentContainerStyle: styles.scrollContent,
+              showsVerticalScrollIndicator: false,
+            })}
+          >
+            <React.Fragment>
+              <Container style={style}>{children}</Container>
+            </React.Fragment>
+          </Content>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -58,11 +59,11 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.xl,
+    paddingHorizontal: spacing.lg
   },
   scrollContent: {
     flexGrow: 1,
+    paddingBottom: spacing.xxl
   },
 });
 
