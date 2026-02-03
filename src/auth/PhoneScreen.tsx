@@ -33,9 +33,9 @@ export default function PhoneScreen({ navigation }: any) {
   return (
     <Screen style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>What’s your phone number?</Text>
+        <Text style={styles.title}>Let’s get you verified!</Text>
         <Text style={styles.subtitle}>
-          We’ll send you a one-time verification code
+          Enter your phone number to continue. We’ll send you a one-time verification code.
         </Text>
       </View>
 

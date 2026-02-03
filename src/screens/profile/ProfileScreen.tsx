@@ -54,10 +54,13 @@ export default function ProfileScreen() {
       setLoading(true);
       setError("");
 
-      await updateMe({
+      const res = await updateMe({
         fullName: fullName.trim(),
         email: email.trim() || undefined,
       });
+
+      console.log(res);
+      
 
       await queryClient.invalidateQueries({ queryKey: ["me"] });
       setEditing(false);
